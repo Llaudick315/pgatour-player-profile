@@ -69,19 +69,30 @@
 			the next tournament.</p>
 			<h3>Use Case:</h3>
 			<h4>Goal: Access PGAtour player world rank</h4>
-			<p>A user accesses the website, the user then clicks the link to the player profile at the top of the page, the website loads the page asks for what
-				specific player the user is looking for, the user finds the player and clicks the player profile, the website loads the page, in which the user
-				locates the world ranking of the player on the player profile page.</p>
+			<ol>
+				<li>The user goes to PGAtour.com and loads the website</li>
+				<li>The user then clicks the link to the player profile at the top of the page</li>
+				<li>The website loads the page asks for what specific player the user is looking for</li>
+				<li>The user finds the player and clicks the player profile</li>
+				<li>The website loads the page</li>
+				<li>In which the user locates the world ranking of the player on the player profile page</li>
+			</ol>
 			<h4>Goal: Access articles on specific player through player profile</h4>
-			<p>A user accesses the website, finds the player profile, clicks the link to profile, clicks the player article link.</p>
+			<ol>
+				<li>The user goes to PGAtour.com and loads the website</li>
+				<li>The user then clicks the link to the player profile at the top of the page</li>
+				<li>The website loads the page asks for what specific player the user is looking for</li>
+				<li>The user finds the player and clicks the player profile</li>
+				<li>The website loads the page</li>
+				<li>The user now looks for articles on the player they chose in the article section below the ranks</li>
+				<li>The user clicks the article they wont</li>
+				<li>The webpage loads the article for the user to read</li>
+			</ol>
 			<h3>Relations</h3>
-			<h4>Profile to Stats,    m - to - n</h4>
+			<h4>Player earns Stats,    m - to - n</h4>
 			<p>There can be many players profiles to many different stats and many different stats to many different player profile.</p>
-			<h4>Author to Article,   m - to - n</h4>
-			<p>A user accesses the website, the user then clicks the link to the player profile at the top of the page, the website loads the page asks for what
-				specific player the user is looking for, the user finds the player and clicks the player profile, the website loads the page, the user now looks for
-				articles on the player they chose in the article section below the ranks, the user clicks the article they wont, then the webpage loads the article
-				for the user to read.</p>
+			<h4>Author writes Article,   m - to - n</h4>
+			<p>There can be many different authors to many different articles and many different articles to many different authors.</p>
 		</main>
 	</body>
 </html>
