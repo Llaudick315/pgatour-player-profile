@@ -206,6 +206,152 @@ class author implements \JsonSerializable {
 			$this->saltContent = $newSaltContent;
 		}
 		/**
+		 * inserts this Author into mysql
+		 *
+		 * @param \PDO $pdo PDO connection object
+		 * @throws \PDOException when mySQL related errors occur
+		 * @throws \TypeError if $pdo is not a PDO connection object
+		 **/
+		public function insert(\PDO $pdo) {
+			// enforce the authorId is null
+			if($this->authorId !== null) {
+				throw(new \PDOException("not an author"));
+			}
+
+			// create query template
+			$query = "INSERT INTO author(emailContent, hashContent, nameContent, saltContent) VALUES(:emailContent, :hashContent, :nameContent, :saltContnent)";
+			$statement = $pdo->prepare($query);
+
+			//bind the member variables to the place holders in the template
+			$parameters = ["emailContent" => $this->emailContent, "hashContent" => $this->hashContent, "nameContent" => $this->nameContent, "saltContent" => $this->saltContent];
+			$statement->execute($parameters);
+
+			// update the null authorId with what mySQL just gave us
+			$this->authorId = intval($pdo->lastInsertId());
+		}
+
+		/**
+		 * updates the Author in mySQL
+		 *
+		 * @param \PDO $pdo PDO connection object
+		 * @throws \PDOException when mySQL related errors occur
+		 * @throws \TypeError if $pdo is not a PDO connection object
+		 **/
+		public function update(\pdo $pdo) {
+			// enforce that the authorId is not null
+			if($this->authorId === null) {
+				throw(new \PDOException("unable to update the author if it does not exist"));
+			}
+
+			// create query template
+			$query = "UPDATE author SET emailContent = :emailContent, hashContent = :hashContent, nameContent = :nameContent, saltContent = :saltContent WHERE authorId = :authorId";
+			$statement = $pdo->prepare($query);
+
+			// bind the member variables to the place holders in the template
+			$parameters = ["emailContent" => $this->emailContent, "hashContent" => $this->hashContent, "nameContent" => $this->nameContent, "saltContent" => $this->saltContent];
+			$statement->execute($parameters);
+		}
+		/**
+		 * deletes this author from mySQL
+		 *
+		 *@param \PDO $pdo PDO connection object
+		 *@throws \PDOException when mySQL related errors occur
+		 *@throws \TypeError if $pdo is not a PDO connection object
+		 **/
+		public function delete(\PDO $pdo) {
+			// enforce the authorId is not null
+			if($this->authorId === null) {
+				throw(new \PDOException("unable to delete an author that does not exist"));
+			}
+
+			// create query template
+			$query = "DELETE FROM author WHERE authorId = :authorId";
+			$statement = $pdo->prepare($query);
+
+			// bind the member variables to the place holder in the template
+			$parameters = ["authorId" => $this->authorId];
+			$statement->execute($parameters);
+		}
+		/**
+		 * gets author by emailContent
+		 *
+		 * @param \PDO $pdo PDO connection object
+		 * @param string $emailContent author content to search for
+		 * @return \SplFixedArray SplFixedArray of authors found
+		 * @throws \PDOException when mySQL related errors occur
+		 * @throws \TypeError when variables are not the correct data type
+		 **/
+		public static function getAuthorByEmailContent(\PDO $pdo, string $emailContent) {
+			// sanitize the description before searching
+			$emailContent = trim($emailContent);
+			$emailContent = filter_var($emailContent, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
+			if(empty($emailContent) === true) {
+				throw(new \PDOException("author content is invalid"));
+			}
+
+			// create query template
+			$query = "SELECT authorId, emailContent, hashContent, nameContent, saltContent FROM author WHERE emailContent LIKE :emailContent";
+			$statement = $pdo->prepare($query);
+
+			// bid the email content to the place holder in the template
+			$emailContent = "%$emailContent%";
+			$parameters = array("emailContent" => $emailContent);
+			$statement->execute($parameters);
+
+			//build an array of authors
+			$authors = new \SplFixedArray(($statement->rowCount()));
+			$statement->setFetchMode(\PDO::FETCH_ASSOC);
+			while(($row = $statement->fetch()) !== false) {
+				try {
+					$author = new Author($row["authorId"], $row["emailContent"], $row["hashContent"], $row["nameContent"], $row["saltContent"]);
+					$author[$author->key()] = $author;
+					$author->next();
+				} catch(\Exception $exception) {
+					//if the row couldn't be converted, rethrow it
+					throw(new \PDOException($exception->getMessage(), 0, $exception));
+				}
+			}
+			return($authors);
+		}
+
+		/**
+		 * gets author by authorId
+		 *
+		 * @param \PDO $pdo PDO connection object
+		 * @param int $authorId author id to search for
+		 * @return author|null Author found or null if not found
+		 * @throws \PDOException when mySQL related errors occur
+		 * @throws \TypeError when variables are not the correct data type
+		 **/
+		public static function getAuthorByAuthorId(\PDO $pdo, int $authorId) {
+			//sanitize the authorId before searching
+			if($authorId <= 0) {
+				throw(new \PDOException("author id is not positive"));
+			}
+
+			// create query template
+			$query = "SELECT authorId, emailContent, hashContent, nameContent, saltContent FROM author WHERE authorId = :authorId";
+			$statement = $pdo->prepare($query);
+
+			// bind the author id to the place holder in the template
+			$parameters = array("authorId" => $authorId);
+			$statement->execute($parameters);
+
+			//grab the author from mySQL
+			try {
+				$author = null;
+				$statement->setFetchMode(\PDO::FETCH_ASSOC);
+				$row = $statement->fetch();
+				if($row !== false) {
+					$author = new Author($row["authorId"], $row["emailContent"], $row["hashContent"], $row["nameContent"], $row["saltContent"]);
+				}
+			} catch(\Exception $exception) {
+				// if the row couldnt be converted, rethrow it
+				throw(new \PDOException($exception->getMessage(), 0, $exception));
+			}
+			return($author);
+		}
+		/**
 		 * formats the state variabels for Json serialization
 		 *
 		 * @return array resulting state variables to serialize
