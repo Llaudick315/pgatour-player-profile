@@ -88,7 +88,7 @@ class author implements \JsonSerializable {
 		public function setAuthorId(int $newAuthorId = null) {
 			// base case: if the author id is null, this a new author wihtout a mySQL assigned id
 			if($newAuthorId === null){
-				$this->AuthorId = null;
+				$this->authorId = null;
 				return;
 			}
 			//verify the author id is positive
@@ -304,8 +304,8 @@ class author implements \JsonSerializable {
 			while(($row = $statement->fetch()) !== false) {
 				try {
 					$author = new Author($row["authorId"], $row["emailContent"], $row["hashContent"], $row["nameContent"], $row["saltContent"]);
-					$author[$author->key()] = $author;
-					$author->next();
+					$authors[$authors->key()] = $author;
+					$authors->next();
 				} catch(\Exception $exception) {
 					//if the row couldn't be converted, rethrow it
 					throw(new \PDOException($exception->getMessage(), 0, $exception));
